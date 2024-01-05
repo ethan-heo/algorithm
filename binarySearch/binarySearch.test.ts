@@ -4,6 +4,7 @@ import {
     canOrderFromBaemin,
     canOrderFromBaeminUsingMap,
 } from "./binarySearch";
+import { describe, test, expect } from "vitest";
 
 describe("배달의 민족 배달 가능 여부", () => {
     test("ASC 정렬", () => {

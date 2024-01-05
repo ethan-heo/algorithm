@@ -1,4 +1,5 @@
 import { plusOrMinus } from "./plusOrMinus";
+import { expect, test } from "vitest";
 
 test("plusOrMinus", () => {
     expect(plusOrMinus(0, [2, 3, 1])).toBe(2);
