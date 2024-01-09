@@ -1,11 +1,10 @@
 import { Node } from "./Tree.types";
 
-const createTreeNode = <T>(initData?: T): Node<T> => {
+const createTreeNode = <T>(initData: T): Node<T> => {
     return {
-        data: initData ?? null,
+        data: initData,
         parent: null,
-        left: null,
-        right: null,
+        children: [],
     };
 };
 

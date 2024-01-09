@@ -1,6 +1,7 @@
 export type Node<T> = {
-    data: T | null;
+    data: T;
     parent: Node<T> | null;
-    left: Node<T> | null;
-    right: Node<T> | null;
+    children: Node<T>[];
 };
+
+export type Travalsing = "preOrder" | "inOrder" | "postOrder";

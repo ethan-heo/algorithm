@@ -1,38 +1,29 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import createTree from "./Tree";
+import { Travalsing } from "./Tree.types";
 
 describe(`Tree test`, () => {
-    const tree = createTree(0);
+    const tree = createTree();
 
     beforeEach(() => {
-        tree.createNode(1)
-            .createNode(2)
-            .createNode(3)
-            .createNode(4)
-            .createNode(5);
+        tree.createBinaryTree([1, 2, 3, 4, 5, 6, 7]);
     });
 
     // it(`findNode`, () => {
     //     expect(tree.findNode((node) => node.data === 3).data).toBe(3);
     // });
 
-    it(`travalse`, () => {
-        const numbers: number[] = [];
-        /**
-         *                0
-         *          1           2
-         *      3       4   5
-         */
+    it.each([
+        ["preOrder", [1, 2, 4, 5, 3, 6, 7]],
+        ["inOrder", [2, 4, 5, 1, 3, 6, 7]],
+        ["postOrder", [2, 4, 5, 3, 6, 7, 1]],
+    ])(`travalse(%s) => %s`, (travalsing, expected) => {
+        const result: number[] = [];
 
-        console.dir(tree.node);
-
-        tree.travalse((node) => {
-            console.log(node.data);
-            if (node.data !== null) {
-                numbers.push(node.data as number);
-            }
+        tree.travalse(travalsing as Travalsing, (node) => {
+            result.push(node.data as number);
         });
 
-        expect(numbers).toStrictEqual([0, 1, 3, 4, 2, 5]);
+        expect(result).toStrictEqual(expected);
     });
 });

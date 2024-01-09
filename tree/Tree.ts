@@ -1,82 +1,149 @@
-import { Node } from "./Tree.types";
+import { Node, Travalsing } from "./Tree.types";
 import createTreeNode from "./TreeNode";
 
-const createTree = <T>(initData: T) => {
-    const rootNode = createTreeNode(initData);
-
-    rootNode.left = createTreeNode();
-    rootNode.right = createTreeNode();
+const createTree = <T>() => {
+    let rootNode: Node<T> | null = null;
 
     const findNode = (
         node: Node<T>,
         callback: (node: Node<T>) => boolean
-    ): Node<T> => {
-        console.log(node.data);
-        if (node.left !== null && callback(node.left)) {
-            return node.left;
-        }
+    ): Node<T> => {};
 
-        if (node.right !== null && callback(node.right)) {
-            return node.right;
-        }
-
-        if (node.left !== null) {
-            return findNode(node.left, callback);
-        }
-
-        if (node.right !== null) {
-            return findNode(node.right, callback);
-        }
-
-        if (node.parent !== null) {
-            return findNode(node.parent, callback);
-        } else {
-            return node;
-        }
-    };
-
-    const travalse = (
-        node: Node<T>,
+    const preOrderTravalse = (
+        node: Node<T> | null,
         callback: (node: Node<T>) => void
-    ): Node<T> => {
-        callback(node);
-
-        if (node.left !== null) {
-            return travalse(node.left, callback);
-        }
-
-        if (node.right !== null) {
-            return travalse(node.right, callback);
-        }
-
-        if (node.parent !== null) {
-            return travalse(node.parent, callback);
-        } else {
-            return node;
+    ) => {
+        if (node !== null) {
+            callback(node);
+            preOrderTravalse(node.children[0] ?? null, callback);
+            preOrderTravalse(node.children[1] ?? null, callback);
         }
     };
 
-    const createNode = (node: Node<T>, data: T) => {
-        const _node = findNode(node, (node) => node.data === null);
+    const inOrderTravalse = (
+        node: Node<T> | null,
+        callback: (node: Node<T>) => void
+    ) => {
+        if (node !== null) {
+            preOrderTravalse(node.children[0] ?? null, callback);
+            callback(node);
+            preOrderTravalse(node.children[1] ?? null, callback);
+        }
+    };
 
-        _node.data = data;
-        _node.left = createTreeNode();
-        _node.right = createTreeNode();
+    const postOrderTravalse = (
+        node: Node<T> | null,
+        callback: (node: Node<T>) => void
+    ) => {
+        if (node !== null) {
+            preOrderTravalse(node.children[0] ?? null, callback);
+            preOrderTravalse(node.children[1] ?? null, callback);
+            callback(node);
+        }
+    };
 
-        return this;
+    const getRootNode = () => {
+        if (rootNode === null) {
+            throw new Error(`Must be create tree`);
+        }
+
+        return rootNode;
     };
 
     return {
-        node: rootNode,
-        travalse: (callback: (node: Node<T>) => void) =>
-            travalse(rootNode, callback),
+        getRootNode,
+        travalse: (
+            travalsing: Travalsing,
+            callback: (node: Node<T>) => void
+        ) => {
+            const rootNode = getRootNode();
+
+            switch (travalsing) {
+                case "preOrder":
+                    preOrderTravalse(rootNode, callback);
+                    break;
+                case "inOrder":
+                    inOrderTravalse(rootNode, callback);
+                    break;
+                case "postOrder":
+                    postOrderTravalse(rootNode, callback);
+                    break;
+            }
+        },
+
         findNode: (callback: (node: Node<T>) => boolean) =>
-            findNode(rootNode, callback),
-        createNode(data: T) {
-            createNode(rootNode, data);
-            return this;
+            findNode(getRootNode(), callback),
+        createBinaryTree: (data: T | T[]) => {
+            let _data: T[] = [];
+
+            if (!is(data, "array")) {
+                _data.push(data);
+            } else {
+                _data = data;
+            }
+
+            const tree: Node<T>[] = [];
+
+            _data.forEach((data, idx) => {
+                const node = createTreeNode(data);
+
+                if (idx === 0) {
+                    tree.push(node);
+                } else {
+                    tree.push(node);
+
+                    let parentNodeIdx;
+
+                    if ((idx + 1) % 2 === 0) {
+                        parentNodeIdx = idx / 2;
+                    } else {
+                        parentNodeIdx = idx / 2 - 1;
+                    }
+
+                    const parentNode = tree[Math.floor(parentNodeIdx)];
+
+                    parentNode.children.push(node);
+                }
+            });
+
+            rootNode = tree[0];
+
+            return rootNode;
         },
     };
 };
 
 export default createTree;
+
+type isReturnTypeMap = {
+    string: string;
+    number: number;
+    array: any[];
+    object: object;
+    boolean: boolean;
+    symbol: symbol;
+    null: null;
+    undefined: undefined;
+};
+
+type isCompareType =
+    | "string"
+    | "number"
+    | "array"
+    | "object"
+    | "boolean"
+    | "symbol"
+    | "null"
+    | "undefined";
+
+function is<C extends isCompareType>(
+    data: any,
+    compare: C
+): data is isReturnTypeMap[C] {
+    const type = Object.prototype.toString
+        .call(data)
+        .slice(8, -1)
+        .toLocaleLowerCase();
+
+    return type === compare;
+}
